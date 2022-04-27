@@ -7,7 +7,7 @@ README = (HERE / "README.md").read_text()
 REQUIREMENTS = (HERE / "requirements.txt").read_text()
 
 setup(name="tasker",
-      version="0.1.1",
+      version="0.1.2",
       description="Automate shell tasks with python",
       long_description=README,
       long_description_content_type="text/markdown",

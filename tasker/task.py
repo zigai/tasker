@@ -3,16 +3,18 @@ from __future__ import annotations
 import json
 import os
 import pickle
+import platform
 import shlex
 import subprocess
 import uuid
 from pathlib import Path
+from socket import gethostname
 
 import yaml
 from loguru import logger as LOG
 
 from tasker.task_output import TaskOutput
-from tasker.utils import Timer, discord_err_notification, get_device_info
+from tasker.utils import Timer, discord_err_notification
 
 HOME = str(Path.home())
 
@@ -28,14 +30,14 @@ class Task:
     def __init__(self,
                  command: str | list,
                  directory: str = HOME,
-                 name: str | None = None,
+                 name: str = None,
                  description: str = "",
-                 time_limit: float | None = None,
-                 on_completion: Task | str | Path | None = None,
-                 on_timeout: Task | str | Path | None = None,
-                 on_error: Task | str | Path | None = None,
-                 logfile_path: str | None = None,
-                 discord_webhooks: str | list | None = None,
+                 time_limit: float = None,
+                 on_completion: Task | str | Path = None,
+                 on_timeout: Task | str | Path = None,
+                 on_error: Task | str | Path = None,
+                 logfile_path: str = None,
+                 discord_webhooks: str | list = None,
                  show_stdout: bool = False) -> None:
 
         if isinstance(name, str):
@@ -65,13 +67,13 @@ class Task:
         if not os.path.exists(self.directory):
             LOG.warning(f"Task directory '{self.directory}' currently doesn't exist")
 
-    def set_on_timeout(self, task: str | Task | None | Path):
+    def set_on_timeout(self, task: str | Task | Path):
         self.on_timeout = self.__load_task(task)
 
-    def set_on_completion(self, task: str | Task | None | Path):
+    def set_on_completion(self, task: str | Task | Path):
         self.on_timeout = self.__load_task(task)
 
-    def set_on_error(self, task: str | Task | None | Path):
+    def set_on_error(self, task: str | Task | Path):
         self.on_error = self.__load_task(task)
 
     def command_as_str(self):
@@ -98,8 +100,9 @@ class Task:
 
     def __run(self):
         has_timed_out = False
-        LOG.info(f"Starting task '{self.name}' on {get_device_info()}  in {self.directory}")
-        LOG.info(f"Command: {self.command_as_str()}")
+        LOG.info(
+            f"Starting task '{self.name}' on {gethostname()} ({platform.platform()})  in '{self.directory}'. Task command: '{self.command_as_str()}'"
+        )
         timer = Timer()
         process = subprocess.Popen(self.command,
                                    stdout=subprocess.PIPE,
@@ -112,40 +115,52 @@ class Task:
             process.kill()
             stdout, stderr = process.communicate()
             has_timed_out = True
-            LOG.warning(f"Task '{self.name}'timed out. Time limit: {self.time_limit}")
+            LOG.warning(f"Task '{self.name}' timed out. Time limit: {self.time_limit}")
 
         exit_code = process.wait()
         run_time = timer.stop()
         stdout = stdout.decode()
         stderr = stderr.decode()
 
-        log_msg = f"Task '{self.name}' exited with code {exit_code}. Run time: {run_time}"
-        LOG.info(log_msg)
+        task_output = TaskOutput(exit_code=exit_code,
+                                 std_out=stdout,
+                                 std_err=stderr,
+                                 timed_out=has_timed_out,
+                                 run_time=run_time.total_seconds())
+
+        LOG.info(f"Task '{self.name}' exited with code {exit_code}. Run time: {run_time}")
 
         if self.show_stdout:
-            LOG.info(f"stdout:\n{stdout}")
+            if len(stdout):
+                LOG.info(f"Task '{self.name}' STDOUT:\n{stdout}")
 
         if exit_code != 0:
-            LOG.error(f"stderr:\n {stderr}")
+            LOG.error(f"Task '{self.name}' STDERR:\n {stderr}")
 
             if self.discord_webhooks is not None:
-                content = log_msg
-                if has_timed_out:
-                    content += ". Timed out."
-                self.__send_discord_notifications(content=content, stderr=stderr)
+                self.__send_discord_notifications(task_output)
+        return task_output
 
-        return TaskOutput(exit_code=exit_code,
-                          std_out=stdout,
-                          std_err=stderr,
-                          timed_out=has_timed_out,
-                          run_time=run_time.total_seconds())
+    def __send_discord_notifications(self, task_out: TaskOutput):
+        hostname = gethostname()
+        pltfrm = platform.platform()
 
-    def __send_discord_notifications(self, content: str, stderr: str):
         if isinstance(self.discord_webhooks, str):
-            discord_err_notification(url=self.discord_webhooks, content=content, stderr=stderr)
+            discord_err_notification(url=self.discord_webhooks,
+                                     hostname=hostname,
+                                     platform=pltfrm,
+                                     task_name=self.name,
+                                     task_output=task_out,
+                                     command=self.command_as_str())
+
         elif isinstance(self.discord_webhooks, list):
             for url in self.discord_webhooks:
-                discord_err_notification(url=url, content=content, stderr=stderr)
+                discord_err_notification(url=url,
+                                         hostname=hostname,
+                                         platform=pltfrm,
+                                         task_name=self.name,
+                                         task_output=task_out,
+                                         command=self.command_as_str())
 
     def run(self):
         cwd = os.getcwd()
@@ -245,7 +260,7 @@ class Task:
         with open(filepath, "wb") as f:
             pickle.dump(self, f)
 
-    def __handle_task(self, task: str | Task | None):
+    def __handle_task(self, task: str | Task):
         if task is None:
             return
         elif isinstance(task, Task):
@@ -255,7 +270,7 @@ class Task:
                 if task == "repeat":
                     return self.run()
 
-    def __load_task(self, task: str | Task | None | Path):
+    def __load_task(self, task: str | Task | Path):
         if task is None or isinstance(task, Task):
             return task
         if isinstance(task, str):
