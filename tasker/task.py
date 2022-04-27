@@ -12,7 +12,7 @@ import yaml
 from loguru import logger as LOG
 
 from tasker.task_output import TaskOutput
-from tasker.utils import (Timer, discord_webhook_err_msg, discord_webhook_msg, get_device_info)
+from tasker.utils import Timer, discord_err_notification, get_device_info
 
 HOME = str(Path.home())
 
@@ -132,20 +132,20 @@ class Task:
                 content = log_msg
                 if has_timed_out:
                     content += ". Timed out."
-                if isinstance(self.discord_webhooks, str):
-                    pass
-                    discord_webhook_err_msg(url=self.discord_webhooks,
-                                            content=content,
-                                            stderr=stderr)
-                elif isinstance(self.discord_webhooks, list):
-                    for url in self.discord_webhooks:
-                        discord_webhook_err_msg(url=url, content=content, stderr=stderr)
+                self.__send_discord_notifications(content=content, stderr=stderr)
 
         return TaskOutput(exit_code=exit_code,
                           std_out=stdout,
                           std_err=stderr,
                           timed_out=has_timed_out,
                           run_time=run_time.total_seconds())
+
+    def __send_discord_notifications(self, content: str, stderr: str):
+        if isinstance(self.discord_webhooks, str):
+            discord_err_notification(url=self.discord_webhooks, content=content, stderr=stderr)
+        elif isinstance(self.discord_webhooks, list):
+            for url in self.discord_webhooks:
+                discord_err_notification(url=url, content=content, stderr=stderr)
 
     def run(self):
         cwd = os.getcwd()

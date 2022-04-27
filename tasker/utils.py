@@ -26,13 +26,7 @@ def get_files_in(directory: str):
     return f
 
 
-def discord_webhook_msg(url: str, content: str):
-    webhook = DiscordWebhook(url=url, rate_limit_retry=True, content=content)
-    response = webhook.execute()
-    return response
-
-
-def discord_webhook_err_msg(url: str, content: str, stderr: str):
+def discord_err_notification(url: str, content: str, stderr: str):
     webhook = DiscordWebhook(url=url, rate_limit_retry=True, content=content)
     embed = DiscordEmbed(title=content, description=stderr, color='03b2f8')
     webhook.add_embed(embed)
