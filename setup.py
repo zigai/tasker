@@ -1,15 +1,30 @@
-from setuptools import setup, find_packages
+import pathlib
 
-with open('requirements.txt') as f:
-    REQUIREMENTS = f.read().splitlines()
+from setuptools import find_packages, setup
+
+HERE = pathlib.Path(__file__).parent
+README = (HERE / "README.md").read_text()
+REQUIREMENTS = (HERE / "requirements.txt").read_text()
 
 setup(name="tasker",
-      version="0.0.1",
+      version="0.1.1",
+      description="Automate shell tasks with python",
+      long_description=README,
+      long_description_content_type="text/markdown",
       author="Ziga Ivansek",
-      description="",
-      python_requires='>=3.8.10',
+      author_email="ziga.ivansek@gmail.com",
+      url="https://github.com/ziga-ivansek/tasker",
+      license="MIT",
+      classifiers=[
+          "Programming Language :: Python",
+          "Programming Language :: Python :: 3.8",
+          "Programming Language :: Python :: 3.9",
+          "Programming Language :: Python :: 3.10",
+          "Programming Language :: Python :: 3 :: Only",
+          "Topic :: Software Development :: Libraries :: Python Modules",
+      ],
+      packages=find_packages(),
       install_requires=REQUIREMENTS,
       entry_points={
-          'console_scripts': ['task = tasker.task:cli',],
-      },
-      packages=find_packages())
+          'console_scripts': ['tasker = tasker.tasker_cli:cli',],
+      })

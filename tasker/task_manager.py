@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 
 from loguru import logger as LOG
@@ -11,7 +13,7 @@ class TaskManager:
     def __init__(self) -> None:
         self.tasks: list[Task] = []
 
-    def load_tasks_from(self, directory: str) -> None:
+    def load_from_dir(self, directory: str) -> None:
         if not os.path.exists(directory):
             LOG.error(f"Directory '{directory}' does not exist")
             raise FileNotFoundError(directory)
@@ -27,7 +29,7 @@ class TaskManager:
             raise TypeError(type(t))
         self.tasks.append(t)
 
-    def find(self, name: str) -> Task:
+    def find(self, name: str) -> Task | None:
         for task in self.tasks:
             if task.name == name:
                 return task
