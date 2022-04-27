@@ -101,7 +101,7 @@ class Task:
     def __run(self):
         has_timed_out = False
         LOG.info(
-            f"Starting task '{self.name}' on {gethostname()} ({platform.platform()})  in '{self.directory}'. Task command: '{self.command_as_str()}'"
+            f"Starting task '{self.name}' on {gethostname()} ({platform.platform()}) in '{self.directory}'. Task command: '{self.command_as_str()}'"
         )
         timer = Timer()
         process = subprocess.Popen(self.command,
