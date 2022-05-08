@@ -13,7 +13,7 @@ setup(name="tasker",
       long_description_content_type="text/markdown",
       author="Ziga Ivansek",
       author_email="ziga.ivansek@gmail.com",
-      url="https://github.com/ziga-ivansek/tasker",
+      url="https://github.com/zigai/tasker",
       license="MIT",
       classifiers=[
           "Programming Language :: Python",
