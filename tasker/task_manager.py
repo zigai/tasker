@@ -3,9 +3,9 @@ from __future__ import annotations
 import os
 
 from loguru import logger as LOG
+from stdl import fs
 
 from tasker.task import Task
-from tasker.utils import get_files_in
 
 
 class TaskManager:
@@ -17,7 +17,7 @@ class TaskManager:
         if not os.path.exists(directory):
             LOG.error(f"Directory '{directory}' does not exist")
             raise FileNotFoundError(directory)
-        task_files = get_files_in(directory)
+        task_files = fs.get_files_in(directory)
 
         for file in task_files:
             if file.endswith(Task.TASK_EXT):
