@@ -14,7 +14,7 @@ import yaml
 from loguru import logger as LOG
 
 from tasker.task_output import TaskOutput
-from tasker.utils import Timer, discord_err_notification
+from tasker.util import Timer, discord_error_notify
 
 HOME = str(Path.home())
 
@@ -122,11 +122,13 @@ class Task:
         stdout = stdout.decode()
         stderr = stderr.decode()
 
-        task_output = TaskOutput(exit_code=exit_code,
-                                 std_out=stdout,
-                                 std_err=stderr,
-                                 timed_out=has_timed_out,
-                                 run_time=run_time.total_seconds())
+        task_output = TaskOutput(
+            exit_code=exit_code,
+            std_out=stdout,
+            std_err=stderr,
+            timed_out=has_timed_out,
+            run_time=run_time.total_seconds(),
+        )
 
         LOG.info(f"Task '{self.name}' exited with code {exit_code}. Run time: {run_time}")
 
@@ -146,21 +148,25 @@ class Task:
         pltfrm = platform.platform()
 
         if isinstance(self.discord_webhooks, str):
-            discord_err_notification(url=self.discord_webhooks,
-                                     hostname=hostname,
-                                     platform=pltfrm,
-                                     task_name=self.name,
-                                     task_output=task_out,
-                                     command=self.command_as_str())
+            discord_error_notify(
+                url=self.discord_webhooks,
+                hostname=hostname,
+                platform=pltfrm,
+                task_name=self.name,
+                task_output=task_out,
+                command=self.command_as_str(),
+            )
 
         elif isinstance(self.discord_webhooks, list):
             for url in self.discord_webhooks:
-                discord_err_notification(url=url,
-                                         hostname=hostname,
-                                         platform=pltfrm,
-                                         task_name=self.name,
-                                         task_output=task_out,
-                                         command=self.command_as_str())
+                discord_error_notify(
+                    url=url,
+                    hostname=hostname,
+                    platform=pltfrm,
+                    task_name=self.name,
+                    task_output=task_out,
+                    command=self.command_as_str(),
+                )
 
     def run(self):
         cwd = os.getcwd()

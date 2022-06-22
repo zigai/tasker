@@ -12,13 +12,13 @@ class Timer:
     def __init__(self):
         self.start_time = time()
 
-    def stop(self):
+    def stop(self) -> timedelta:
         run_time = timedelta(seconds=time() - self.start_time)
         return run_time
 
 
-def discord_err_notification(url: str, task_name: str, task_output: TaskOutput, platform: str,
-                             hostname: str, command: str):
+def discord_error_notify(url: str, task_name: str, task_output: TaskOutput, platform: str,
+                         hostname: str, command: str):
     title = f"Task '{task_name}' exited with code {task_output.exit_code}"
     webhook = DiscordWebhook(url=url, rate_limit_retry=True)
     embed = DiscordEmbed(title=title, description=task_output.std_err, color='03b2f8')
