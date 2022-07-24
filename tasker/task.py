@@ -12,9 +12,10 @@ from socket import gethostname
 
 import yaml
 from loguru import logger as LOG
+from stdl.datetime_util import Timer
 
 from tasker.task_output import TaskOutput
-from tasker.util import Timer, discord_error_notify
+from tasker.util import discord_error_notify
 
 HOME = str(Path.home())
 
@@ -27,18 +28,20 @@ class Task:
     TASK_EXT = (".json", ".yml", ".yaml", ".pkl", ".pickle")
     ACTIONS = ["repeat"]
 
-    def __init__(self,
-                 command: str | list,
-                 directory: str = HOME,
-                 name: str = None,
-                 description: str = "",
-                 time_limit: float = None,
-                 on_completion: Task | str | Path = None,
-                 on_timeout: Task | str | Path = None,
-                 on_error: Task | str | Path = None,
-                 logfile_path: str = None,
-                 discord_webhooks: str | list = None,
-                 show_stdout: bool = False) -> None:
+    def __init__(
+        self,
+        command: str | list,
+        directory: str = HOME,
+        name: str = None,
+        description: str = "",
+        time_limit: float = None,
+        on_completion: Task | str | Path = None,
+        on_timeout: Task | str | Path = None,
+        on_error: Task | str | Path = None,
+        logfile_path: str = None,
+        discord_webhooks: str | list = None,
+        show_stdout: bool = False,
+    ) -> None:
 
         if isinstance(name, str):
             self.name = name
@@ -104,10 +107,12 @@ class Task:
             f"Starting task '{self.name}' on {gethostname()} ({platform.platform()}) in '{self.directory}'. Task command: '{self.command_as_str()}'"
         )
         timer = Timer()
-        process = subprocess.Popen(self.command,
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE,
-                                   shell=False)
+        process = subprocess.Popen(
+            self.command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            shell=False,
+        )
 
         try:
             stdout, stderr = process.communicate(timeout=self.time_limit)
