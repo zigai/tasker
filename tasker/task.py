@@ -12,7 +12,7 @@ from socket import gethostname
 
 import yaml
 from loguru import logger as LOG
-from stdl.datetime_util import Timer
+from stdl.dt import Timer
 
 from tasker.task_output import TaskOutput
 from tasker.util import discord_error_notify
@@ -222,7 +222,7 @@ class Task:
             "on_error": self.on_error,
             "log_path": self.log_path,
             "discord_webhooks": self.discord_webhooks,
-            "show_stdout": self.show_stdout
+            "show_stdout": self.show_stdout,
         }
 
     @classmethod
@@ -255,7 +255,7 @@ class Task:
             return cls.deserialize(path)
 
     def save_as_json(self, path: str):
-        with open(path, 'w') as f:
+        with open(path, "w") as f:
             json.dump(self.dict, f, indent=4)
 
     def save_as_yaml(self, path: str):

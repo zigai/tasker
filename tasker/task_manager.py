@@ -9,7 +9,6 @@ from tasker.task import Task
 
 
 class TaskManager:
-
     def __init__(self) -> None:
         self.tasks: list[Task] = []
 

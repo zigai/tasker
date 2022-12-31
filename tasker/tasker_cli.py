@@ -23,5 +23,5 @@ def cli():
             exit(os.system(f"python3 {sys.argv[0]}"))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     cli()

@@ -12,7 +12,7 @@ setup(
     description="Automate shell tasks with python",
     long_description=README,
     long_description_content_type="text/markdown",
-    author="Ziga Ivansek",
+    author="Žiga Ivanšek",
     author_email="ziga.ivansek@gmail.com",
     url="https://github.com/zigai/tasker",
     license="MIT",
@@ -27,6 +27,8 @@ setup(
     packages=find_packages(),
     install_requires=REQUIREMENTS,
     entry_points={
-        'console_scripts': ['tasker = tasker.tasker_cli:cli',],
+        "console_scripts": [
+            "tasker = tasker.tasker_cli:cli",
+        ],
     },
 )
