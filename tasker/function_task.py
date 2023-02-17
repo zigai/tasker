@@ -53,7 +53,6 @@ class FunctionTask(Task):
 
     def exec(self):
         timer = Timer()
-        timed_out = False
         if self.timeout is None:
             result = self.function(*self.args, **self.kwargs)
             run_time = timer.stop()
@@ -64,13 +63,11 @@ class FunctionTask(Task):
                     result = self.function(*self.args, **self.kwargs)
                     run_time = timer.stop()
             except TimeoutError as e:
-                timed_out = True
+                self._log_error(f"Timed out. Time limit: {self.timeout}")
+                return None
             except Exception as e:
                 self._log_error(f"Exception: {e}")
                 return None
-        if timed_out:
-            self._log_error(f"Timed out. Time limit: {self.timeout}")
-            return None
         runtime_str = str(round(run_time.total_seconds(), 2)) + "s"
         self._log_success(f"'{self.name}' exited successfully. Run time: {runtime_str}")
         self._log_result(f"stdout:\n{result}")
