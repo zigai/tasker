@@ -8,8 +8,8 @@ REQUIREMENTS = (HERE / "requirements.txt").read_text()
 
 setup(
     name="tasker",
-    version="0.1.2",
-    description="Automate shell tasks with python",
+    version="0.0.1",
+    description="",
     long_description=README,
     long_description_content_type="text/markdown",
     author="Žiga Ivanšek",
@@ -26,9 +26,5 @@ setup(
     ],
     packages=find_packages(),
     install_requires=REQUIREMENTS,
-    entry_points={
-        "console_scripts": [
-            "tasker = tasker.tasker_cli:cli",
-        ],
-    },
+    entry_points={},
 )
