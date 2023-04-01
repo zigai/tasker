@@ -129,3 +129,5 @@ dmypy.json
 .pyre/
 models.json
 *example*.py
+E61*
+models.json

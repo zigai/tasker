@@ -1,13 +1,8 @@
 import sys
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 
 from apprise import Apprise, NotifyFormat
-from loguru import logger as log
 from stdl.dt import fmt_datetime
-from stdl.log import loguru_formater
-
-log.remove()
-log.add(sys.stdout, level="DEBUG", format=loguru_formater)
 
 
 class Event:
@@ -46,7 +41,7 @@ class MarkdownNotificationFormatter:
         self.ms = ms
 
     def _get_title(self, name: str, event: str) -> str:
-        title = f"{self.event_emojis[event]} `{fmt_datetime(d_sep='/',ms=self.ms)}`  **|**  name:  `{name}`"
+        title = f"{self.event_emojis[event]} `{fmt_datetime(d_sep='/',ms=self.ms)}`  **|**  task  `{name}` {self.event_titles[event]}"
         return title
 
     def format_notification(self, name: str, event: str, data: dict, sections: dict) -> str:
@@ -67,9 +62,12 @@ class MarkdownNotificationFormatter:
 class Notifier:
     EVENTS = ["start", "success", "fail", "info"]
 
-    def __init__(self, name: str, fmt_class=MarkdownNotificationFormatter) -> None:
+    def __init__(
+        self, name: str, fmt_class=MarkdownNotificationFormatter, console: bool = True
+    ) -> None:
         self.name = name
         self.formatter = fmt_class()
+        self.console = console
         self.notifiers: dict[str, Apprise] = {}
         for event in self.EVENTS:
             self.notifiers[event] = Apprise()
@@ -85,12 +83,11 @@ class Notifier:
             name=self.name, event=event, data=data, sections=sections
         )
         self.notifiers[event].notify(body=body, body_format=self.formatter.format)
-        log.info(f"[{event}] {self.name}", **data)
 
     def _validate_event(self, event: str):
         if event not in self.EVENTS:
             raise ValueError(
-                f"Event '{event}' is not a valid event. Valid events are: {', '.join(self.EVENTS)}"
+                f"'{event}' is not a valid event. Valid options are: {', '.join(self.EVENTS)}"
             )
 
 
