@@ -1,12 +1,10 @@
-import platform
 import signal
 from contextlib import contextmanager
-from socket import gethostname
-from typing import Callable
+from typing import Any, Callable
 
 from stdl.dt import Timer
 
-from tasker.notifier import Channel
+from tasker.notifier import Channel, Event
 from tasker.task import Task
 
 
@@ -33,42 +31,65 @@ class FunctionTask(Task):
         function: Callable,
         args: tuple = (),
         kwargs: dict = {},
+        timeout: float | None = None,
+        notification_channels: list[Channel] | None = None,
         name: str | None = None,
         description: str = "",
-        timeout: float | None = None,
-        notifications: list[Channel] | None = None,
+        show_result: bool = False,
+        result_serializer=str,
+        verbose: bool = True,
     ) -> None:
-        super().__init__(name, description, timeout, notifications)
-
+        super().__init__(name, description, timeout, notification_channels, verbose)
         self.function = function
         self.args = args
         self.kwargs = kwargs
-
-    def _log_start(self):
-        self.notifier.notify(
-            "start",
-            f"args: {self.args}\nkwargs: '{self.kwargs}'",
-            title=f"[STARTING] '{self.name}' on {gethostname()} ({platform.platform()})",
-        )
+        self.show_result = show_result
+        self.result_serializer = result_serializer
 
     def exec(self):
+        self.notifier.send_notification(Event.START, self._start_notification_data, {})
+
+        result_data = {}
         timer = Timer()
+        notification_event = Event.SUCCESS
         if self.timeout is None:
             result = self.function(*self.args, **self.kwargs)
-            run_time = timer.stop()
-            return result
         else:
             try:
                 with timeout(self.timeout):
                     result = self.function(*self.args, **self.kwargs)
-                    run_time = timer.stop()
             except TimeoutError as e:
-                self._log_error(f"Timed out. Time limit: {self.timeout}")
-                return None
+                result = None
+                result_data["timed out"] = True
+                notification_event = Event.FAIL
             except Exception as e:
-                self._log_error(f"Exception: {e}")
-                return None
-        runtime_str = str(round(run_time.total_seconds(), 2)) + "s"
-        self._log_success(f"'{self.name}' exited successfully. Run time: {runtime_str}")
-        self._log_result(f"stdout:\n{result}")
+                result = None
+                notification_event = Event.FAIL
+                result_data["exception"] = str(e)
+
+        time_taken = timer.stop().total
+
+        sections = {}
+        result_data["time taken"] = time_taken
+        if self.show_result:
+            sections["result"] = self.result_serializer(result)
+        self.notifier.send_notification(notification_event, result_data, sections)
+
         return result
+
+    @property
+    def _start_notification_data(self):
+        data = super()._start_notification_data
+        if self.verbose:
+            if self.args:
+                data["args"] = self.args
+            if self.kwargs:
+                data["kwargs"] = self.kwargs
+        return data
+
+
+__all__ = [
+    "TimeoutError",
+    "timeout",
+    "FunctionTask",
+]

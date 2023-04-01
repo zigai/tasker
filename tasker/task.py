@@ -1,10 +1,10 @@
-import platform
-import uuid
-from socket import gethostname
+from typing import Any
 
 from stdl import fs
+from stdl.fs import rand_filename as rand_name
 
 from tasker.notifier import Channel, Notifier
+from tasker.util import get_device_info
 
 
 class Task:
@@ -14,54 +14,30 @@ class Task:
         description: str = "",
         timeout: float | None = None,
         notification_channels: list[Channel] | None = None,
+        verbose: bool = False,
     ) -> None:
-        self._id = uuid.uuid4()
         self.description = description
         self.timeout = timeout
+        self.verbose = verbose
+
         self.name: str = name  # type: ignore
         if self.name is None:
-            self.name = f"Task {self._id}"
-        self.notifier = Notifier()
-        if notification_channels is not None:
-            for i in notification_channels:
-                self.notifier.subscribe(i)
+            self.name = rand_name("task")
+
+        self.notifier = Notifier(name=self.name)
+        if notification_channels:
+            for channel in notification_channels:
+                self.notifier.subscribe(channel)
 
     def __repr__(self) -> str:
-        return f"Task(name='{self.name}', id='{self._id})"
+        return f"Task(name='{self.name}', description='{self.description}', timeout={self.timeout})"
 
-    def __eq__(self, other) -> bool:
-        if isinstance(other, Task):
-            return self._id == other._id
-        raise NotImplementedError
-
-    def exec(self):
-        raise NotImplementedError
-
-    def _exec(self):
-        raise NotImplementedError
+    @property
+    def dict(self):
+        return vars(self)
 
     def add_notification_channel(self, channel: Channel):
         self.notifier.subscribe(channel)
-
-    def _log_info(self, message: str):
-        self.notifier.notify("info", message, title=f"[INFO] {self.name}")
-
-    def _log_start(self):
-        self.notifier.notify(
-            "start",
-            f"Starting '{self.name}' on {gethostname()} ({platform.platform()})",
-        )
-
-    def _log_success(self, message: str):
-        self.notifier.notify("success", message, title=f"[SUCCESS] {self.name}")
-
-    def _log_result(self, result: str):
-
-        self.notifier.notify("result", result, title=f"[RESULT] {self.name}")
-
-    def _log_error(self, message: str):
-
-        self.notifier.notify("error", message, title=f"[ERROR] {self.name}")
 
     def save_as_json(self, path: str):
         fs.json_dump(self.dict, path, indent=4)
@@ -69,13 +45,9 @@ class Task:
     def save_as_yaml(self, path: str):
         fs.yaml_dump(self.dict, path)
 
-    @property
-    def dict(self):
-        return vars(self)
-
     @classmethod
-    def from_dict(cls, d):
-        return cls(**d)
+    def from_dict(cls, data):
+        return cls(**data)
 
     @classmethod
     def from_json(cls, path: str):
@@ -90,3 +62,18 @@ class Task:
         if path.endswith((".yml", ".yaml")):
             return cls.from_yaml(path)
         return cls.from_json(path)
+
+    @property
+    def _start_notification_data(self):
+        data: dict[str, Any] = {"device": get_device_info()}
+        if self.timeout is not None:
+            data["timeout"] = self.timeout
+        if self.verbose and self.description:
+            data["description"] = self.description
+        return data
+
+    def exec(self):
+        raise NotImplementedError
+
+
+__all__ = ["Task"]
