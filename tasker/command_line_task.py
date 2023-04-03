@@ -58,6 +58,19 @@ class CommandLineTask(Task):
             self.command: list = command
 
     @property
+    def dict(self):
+        return {
+            "command": self.command,
+            "directory": self.directory,
+            "name": self.name,
+            "description": self.description,
+            "timeout": self.timeout,
+            "notification_channels": [i.dict for i in self.notification_channels],
+            "verbose": self.verbose,
+            "stdout": self.stdout,
+        }
+
+    @property
     def _start_notification_data(self):
         data = super()._start_notification_data
         if self.verbose:
