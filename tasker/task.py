@@ -25,6 +25,7 @@ class Task:
             self.name = rand_name("task")
 
         self.notifier = Notifier(name=self.name)
+        self.notification_channels = notification_channels or []
         if notification_channels:
             for channel in notification_channels:
                 self.notifier.subscribe(channel)
@@ -37,6 +38,7 @@ class Task:
         return vars(self)
 
     def add_notification_channel(self, channel: Channel):
+        self.notification_channels.append(channel)
         self.notifier.subscribe(channel)
 
     def save_as_json(self, path: str):
