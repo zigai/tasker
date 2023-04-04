@@ -1,6 +1,6 @@
 import signal
 from contextlib import contextmanager
-from typing import Any, Callable
+from typing import Callable
 
 from stdl.dt import Timer
 
@@ -53,7 +53,12 @@ class FunctionTask(Task):
         timer = Timer()
         notification_event = Event.SUCCESS
         if self.timeout is None:
-            result = self.function(*self.args, **self.kwargs)
+            try:
+                result = self.function(*self.args, **self.kwargs)
+            except Exception as e:
+                result = None
+                notification_event = Event.FAIL
+                result_data["exception"] = str(e)
         else:
             try:
                 with timeout(self.timeout):
