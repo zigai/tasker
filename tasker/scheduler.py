@@ -3,8 +3,8 @@ from rocketry.conditions import *
 from rocketry.conds import *
 from stdl.fs import rand_filename as randname
 
-from tasker import Task
 from tasker.notifier import Channel
+from tasker.task import Task
 
 
 class TaskScheduler:
