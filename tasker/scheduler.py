@@ -13,7 +13,7 @@ class TaskScheduler:
         self.notification_channels = notification_channels or []
         self.tasks = {}
 
-    def schedule_task(self, at, task: Task):
+    def schedule_task(self, task: Task, at):
         name = randname(task.name)
         for channel in self.notification_channels:
             task.notifier.subscribe(channel)
