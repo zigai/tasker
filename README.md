@@ -34,7 +34,7 @@ task.exec() # run once
 
 from tasker.scheduler import TaskScheduler, every
 scheduler = TaskScheduler()
-scheduler.schedule_task(every("10 seconds"), task) # run every 10 seconds
+scheduler.schedule_task(task, every("10 seconds")) # run every 10 seconds
 scheduler.run()
 
 ```
