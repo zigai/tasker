@@ -1,7 +1,7 @@
 # Tasker
-[![PyPI version](https://badge.fury.io/py/py-tasker.svg)](https://badge.fury.io/py/py-tasker)
+[![PyPI version](https://badge.fury.io/py/tasker-python.svg)](https://badge.fury.io/py/tasker-python)
 ![Supported versions](https://img.shields.io/badge/python-3.10+-blue.svg)
-[![Downloads](https://static.pepy.tech/badge/py-tasker)](https://pepy.tech/project/py-tasker)
+[![Downloads](https://static.pepy.tech/badge/tasker-python)](https://pepy.tech/project/tasker-python)
 [![license](https://img.shields.io/github/license/zigai/tasker.svg)](https://github.com/zigai/tasker/blob/main/LICENSE)
 
 Encapsulate function calls and shell commands as tasks with scheduling (powered by [Rocketry](https://github.com/Miksus/rocketry)) and notifications (powered by [Apprise](https://github.com/caronc/apprise)).
@@ -9,7 +9,7 @@ Encapsulate function calls and shell commands as tasks with scheduling (powered 
 # Installation
 #### From PyPi
 ```
-pip install py-tasker
+pip install tasker-python
 ```
 #### From source
 ```
