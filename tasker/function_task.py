@@ -1,6 +1,6 @@
 import signal
 from contextlib import contextmanager
-from typing import Callable
+from typing import Any, Callable
 
 from stdl.dt import Timer
 
@@ -31,6 +31,7 @@ class FunctionTask(Task):
         function: Callable,
         args: tuple = (),
         kwargs: dict = {},
+        args_func: Callable[[], tuple[tuple[Any], dict[str, Any]]] | None = None,
         timeout: float | None = None,
         notification_channels: list[Channel] | None = None,
         name: str | None = None,
@@ -45,6 +46,7 @@ class FunctionTask(Task):
         self.kwargs = kwargs
         self.show_result = show_result
         self.result_serializer = result_serializer
+        self.args_func = args_func
 
     def exec(self):
         self.notifier.send_notification(Event.START, self._start_notification_data, {})
@@ -54,6 +56,8 @@ class FunctionTask(Task):
         notification_event = Event.SUCCESS
         if self.timeout is None:
             try:
+                if self.args_func:
+                    self.args, self.kwargs = self.args_func()
                 result = self.function(*self.args, **self.kwargs)
             except Exception as e:
                 result = None
