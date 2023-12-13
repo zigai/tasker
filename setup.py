@@ -8,7 +8,7 @@ REQUIREMENTS = (HERE / "requirements.txt").read_text()
 
 setup(
     name="tasker-python",
-    version="0.1.0",
+    version="0.1.1",
     description="Function/CLI tasks with scheduling and notifications",
     long_description=README,
     long_description_content_type="text/markdown",

@@ -1,9 +1,9 @@
 from dataclasses import asdict, dataclass, field
 
 from apprise import Apprise, NotifyFormat
-from stdl.dt import fmt_datetime
+from stdl.dt import datetime_fmt
 from stdl.log import br
-from stdl.str_u import colored
+from stdl.st import colored
 
 
 class Event:
@@ -46,10 +46,12 @@ class MarkdownNotificationFormatter:
         self.ms = ms
 
     def _get_title(self, name: str, event: str) -> str:
-        title = f"{self.event_emojis[event]} `{fmt_datetime(d_sep='/',ms=self.ms)}`  **|**  task  `{name}` {self.event_titles[event]}"
+        title = f"{self.event_emojis[event]} `{datetime_fmt(dsep='/', ms=self.ms)}`  **|**  task  `{name}` {self.event_titles[event]}"
         return title
 
-    def format_notification(self, name: str, event: str, data: dict, sections: dict) -> str:
+    def format_notification(
+        self, name: str, event: str, data: dict, sections: dict
+    ) -> str:
         title = self._get_title(name, event)
         if data:
             body = ">>> "
@@ -74,7 +76,9 @@ class TextNotificationFormatter:
         Event.INFO: colored("INFO", "gray"),
     }
 
-    def __init__(self, events: list[str] | None = None, ms=True, plain: bool = False) -> None:
+    def __init__(
+        self, events: list[str] | None = None, ms=True, plain: bool = False
+    ) -> None:
         self.events = events or [Event.START, Event.FAIL]
         self.plain = plain
         self.ms = ms
@@ -87,10 +91,12 @@ class TextNotificationFormatter:
             }
 
     def _get_title(self, name: str, event: str) -> str:
-        title = f"{fmt_datetime(d_sep='/',ms=self.ms)} | task '{name}' {self.event_titles[event]}"
+        title = f"{datetime_fmt(dsep='/',ms=self.ms)} | task '{name}' {self.event_titles[event]}"
         return title
 
-    def format_notification(self, name: str, event: str, data: dict, sections: dict) -> str:
+    def format_notification(
+        self, name: str, event: str, data: dict, sections: dict
+    ) -> str:
         title = self._get_title(name, event)
         message = [title]
         if data:
