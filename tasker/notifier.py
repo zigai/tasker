@@ -42,7 +42,7 @@ class MarkdownNotificationFormatter:
         Event.INFO: ":white_circle:",
     }
 
-    def __init__(self, ms=True) -> None:
+    def __init__(self, ms: bool = True) -> None:
         self.ms = ms
 
     def _get_title(self, name: str, event: str) -> str:

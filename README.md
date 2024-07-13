@@ -4,9 +4,9 @@
 [![Downloads](https://static.pepy.tech/badge/tasker-python)](https://pepy.tech/project/tasker-python)
 [![license](https://img.shields.io/github/license/zigai/tasker.svg)](https://github.com/zigai/tasker/blob/main/LICENSE)
 
-Encapsulate function calls and shell commands as tasks with scheduling (powered by [Rocketry](https://github.com/Miksus/rocketry)) and notifications (powered by [Apprise](https://github.com/caronc/apprise)).
+Simple task automation framework built on Python, integrating [Rocketry](https://github.com/Miksus/rocketry) for advanced scheduling and [Apprise](https://github.com/caronc/apprise) for multi-platform notifications. Simplifies complex task management by allowing developers to encapsulate both Python functions and shell commands as schedulable tasks, enhancing productivity and system reliability.
 
-# Installation
+## Installation
 #### From PyPi
 ```
 pip install tasker-python
@@ -15,17 +15,15 @@ pip install tasker-python
 ```
 pip install git+https://github.com/zigai/tasker.git
 ```
-# Example
+## Example
 ```python
 from tasker import Channel, CommandLineTask
-
-discord_webhook = "discord://..."
 
 task = CommandLineTask(
     name="hello-world",
     command="echo 'Hello World!'",
     notification_channels=[
-        Channel(discord_webhook, events=["start", "success", "info", "fail"]), 
+        Channel("discord://...", events=["start", "success", "info", "fail"]), 
     ],
     stdout=True, # display stdout in notifications
 )
@@ -39,5 +37,5 @@ scheduler.run()
 
 ```
 
-# License
+## License
 [MIT License](https://github.com/zigai/tasker/blob/master/LICENSE)

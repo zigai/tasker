@@ -1,3 +1,4 @@
+import json
 import signal
 from contextlib import contextmanager
 from typing import Any, Callable
@@ -18,7 +19,7 @@ def timeout(seconds: float):
         raise TimeoutError(f"Timed out after {seconds}s")
 
     signal.signal(signal.SIGALRM, signal_handler)
-    signal.alarm(seconds)
+    signal.alarm(int(seconds))
     try:
         yield
     finally:
@@ -37,7 +38,7 @@ class FunctionTask(Task):
         name: str | None = None,
         description: str = "",
         show_result: bool = False,
-        result_serializer=str,
+        result_serializer: Callable[[Any], str] = json.dumps,
         verbose: bool = True,
     ) -> None:
         super().__init__(name, description, timeout, notification_channels, verbose)
@@ -54,35 +55,44 @@ class FunctionTask(Task):
         result_data = {}
         timer = Timer()
         notification_event = Event.SUCCESS
-        if self.timeout is None:
-            try:
+        exception = None
+
+        try:
+            if self.timeout is None:
                 if self.args_func:
                     self.args, self.kwargs = self.args_func()
                 result = self.function(*self.args, **self.kwargs)
-            except Exception as e:
-                result = None
-                notification_event = Event.FAIL
-                result_data["exception"] = str(e)
-        else:
-            try:
+            else:
                 with timeout(self.timeout):
+                    if self.args_func:
+                        self.args, self.kwargs = self.args_func()
                     result = self.function(*self.args, **self.kwargs)
-            except TimeoutError as e:
-                result = None
-                result_data["timed out"] = True
-                notification_event = Event.FAIL
-            except Exception as e:
-                result = None
-                notification_event = Event.FAIL
-                result_data["exception"] = str(e)
+        except TimeoutError as e:
+            result = None
+            result_data["timed out"] = True
+            notification_event = Event.FAIL
+            exception = e
+        except Exception as e:
+            result = None
+            notification_event = Event.FAIL
+            exception = e
 
         time_taken = timer.stop().total
 
         sections = {}
         result_data["time taken"] = time_taken
+        if exception:
+            result_data["exception"] = str(exception)
         if self.show_result:
-            sections["result"] = self.result_serializer(result)
+            try:
+                sections["result"] = self.result_serializer(result)
+            except Exception as e:
+                sections["result"] = f"Error serializing result: {str(e)}"
+
         self.notifier.send_notification(notification_event, result_data, sections)
+
+        if exception:
+            raise exception
 
         return result
 
@@ -95,10 +105,3 @@ class FunctionTask(Task):
             if self.kwargs:
                 data["kwargs"] = self.kwargs
         return data
-
-
-__all__ = [
-    "TimeoutError",
-    "timeout",
-    "FunctionTask",
-]

@@ -51,11 +51,7 @@ class CommandLineTask(Task):
         super().__init__(name, description, timeout, notification_channels, verbose)
         self.directory = directory
         self.stdout = stdout
-
-        if isinstance(command, str):
-            self.command: list = shlex.split(command)
-        else:
-            self.command: list = command
+        self.command = shlex.split(command) if isinstance(command, str) else command
 
     @property
     def dict(self):
