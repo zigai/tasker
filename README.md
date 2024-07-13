@@ -4,7 +4,7 @@
 [![Downloads](https://static.pepy.tech/badge/tasker-python)](https://pepy.tech/project/tasker-python)
 [![license](https://img.shields.io/github/license/zigai/tasker.svg)](https://github.com/zigai/tasker/blob/main/LICENSE)
 
-Simple task automation framework built on Python, integrating [Rocketry](https://github.com/Miksus/rocketry) for advanced scheduling and [Apprise](https://github.com/caronc/apprise) for multi-platform notifications. Simplifies complex task management by allowing developers to encapsulate both Python functions and shell commands as schedulable tasks, enhancing productivity and system reliability.
+Simple task automation framework for Python, integrating [Rocketry](https://github.com/Miksus/rocketry) for advanced scheduling and [Apprise](https://github.com/caronc/apprise) for multi-platform notifications. Simplifies complex task management by allowing developers to encapsulate both Python functions and shell commands as schedulable tasks, enhancing productivity and system reliability.
 
 ## Installation
 #### From PyPi
