@@ -9,7 +9,7 @@ REQUIREMENTS = (HERE / "requirements.txt").read_text()
 setup(
     name="tasker-python",
     version="0.1.3",
-    description="Function/CLI tasks with scheduling and notifications",
+    description="Simple task automation framework for Python, integrating Rocketry for advanced scheduling and Apprise for multi-platform notifications. Wraps Python functions and shell commands into easily manageable and schedulable units.",
     long_description=README,
     long_description_content_type="text/markdown",
     author="Žiga Ivanšek",
@@ -21,10 +21,10 @@ setup(
     entry_points={},
     classifiers=[
         "Programming Language :: Python",
+        "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
-        "Programming Language :: Python :: 3 :: Only",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Intended Audience :: Developers",
         "Operating System :: OS Independent",
