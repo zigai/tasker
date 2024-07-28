@@ -8,7 +8,7 @@ REQUIREMENTS = (HERE / "requirements.txt").read_text()
 
 setup(
     name="tasker-python",
-    version="0.1.2",
+    version="0.1.3",
     description="Function/CLI tasks with scheduling and notifications",
     long_description=README,
     long_description_content_type="text/markdown",
@@ -22,6 +22,8 @@ setup(
     classifiers=[
         "Programming Language :: Python",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3 :: Only",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Intended Audience :: Developers",
@@ -35,5 +37,7 @@ setup(
         "task scheduler",
         "scheduler notifications",
         "cron notifications",
+        "rocketry",
+        "apprise",
     ],
 )
