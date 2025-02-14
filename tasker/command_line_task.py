@@ -4,13 +4,13 @@ import subprocess
 from dataclasses import asdict, dataclass
 from datetime import timedelta
 from pathlib import Path
+from typing import Any, Dict
 
 from stdl.dt import Timer
 
 from tasker.notifier import Channel, Event
 from tasker.task import Task
 
-HOME = str(Path.home())
 POPEN_ERROR = (
     BrokenPipeError,
     UnicodeDecodeError,
@@ -40,7 +40,7 @@ class CommandLineTask(Task):
     def __init__(
         self,
         command: str | list[str],
-        directory: str = HOME,
+        directory: str | None = None,
         name: str | None = None,
         description: str = "",
         timeout: float | None = None,
@@ -49,12 +49,12 @@ class CommandLineTask(Task):
         stdout: bool = False,
     ) -> None:
         super().__init__(name, description, timeout, notification_channels, verbose)
-        self.directory = directory
+        self.directory = directory or os.getcwd()
         self.stdout = stdout
         self.command = shlex.split(command) if isinstance(command, str) else command
 
     @property
-    def dict(self):
+    def dict(self) -> Dict[str, Any]:
         return {
             "command": self.command,
             "directory": self.directory,
@@ -67,7 +67,7 @@ class CommandLineTask(Task):
         }
 
     @property
-    def _start_notification_data(self):
+    def _start_notification_data(self) -> Dict[str, Any]:
         data = super()._start_notification_data
         if self.verbose:
             data["directory"] = self.directory
@@ -89,7 +89,7 @@ class CommandLineTask(Task):
 
         self.notifier.send_notification(event, data, sections)
 
-    def exec(self):
+    def exec(self) -> CommandLineResult:
         self.notifier.send_notification(Event.START, self._start_notification_data, {})
 
         cwd = os.getcwd()
@@ -140,5 +140,5 @@ class CommandLineTask(Task):
 
         return result
 
-    def command_str(self):
+    def command_str(self) -> str:
         return " ".join(self.command)

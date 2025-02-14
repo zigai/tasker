@@ -8,7 +8,7 @@ REQUIREMENTS = (HERE / "requirements.txt").read_text()
 
 setup(
     name="tasker-python",
-    version="0.1.4",
+    version="0.1.5",
     description="Simple task automation framework for Python, integrating Rocketry for advanced scheduling and Apprise for multi-platform notifications. Wraps Python functions and shell commands into easily manageable and schedulable units.",
     long_description=README,
     long_description_content_type="text/markdown",

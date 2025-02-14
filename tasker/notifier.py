@@ -77,7 +77,10 @@ class TextNotificationFormatter:
     }
 
     def __init__(
-        self, events: list[str] | None = None, ms=True, plain: bool = False
+        self,
+        events: list[str] | None = None,
+        ms=True,
+        plain: bool = False,
     ) -> None:
         self.events = events or [Event.START, Event.FAIL]
         self.plain = plain
@@ -95,7 +98,11 @@ class TextNotificationFormatter:
         return title
 
     def format_notification(
-        self, name: str, event: str, data: dict, sections: dict
+        self,
+        name: str,
+        event: str,
+        data: dict,
+        sections: dict,
     ) -> str:
         title = self._get_title(name, event)
         message = [title]
@@ -132,12 +139,12 @@ class Notifier:
         for event in self.EVENTS:
             self.notifiers[event] = Apprise()
 
-    def subscribe(self, channel: Channel):
+    def subscribe(self, channel: Channel) -> None:
         for event in channel.events:
             self._validate_event(event)
             self.notifiers[event].add(channel.url)
 
-    def send_notification(self, event: str, data: dict, sections: dict):
+    def send_notification(self, event: str, data: dict, sections: dict) -> None:
         self._validate_event(event)
         body = self.formatter.format_notification(
             name=self.name, event=event, data=data, sections=sections
@@ -148,7 +155,7 @@ class Notifier:
                 name=self.name, event=event, data=data, sections=sections
             )
 
-    def _validate_event(self, event: str):
+    def _validate_event(self, event: str) -> None:
         if event not in self.EVENTS:
             raise ValueError(
                 f"'{event}' is not a valid event. Valid options are: {', '.join(self.EVENTS)}"

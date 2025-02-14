@@ -34,17 +34,17 @@ class Task:
         return f"Task(name='{self.name}', description='{self.description}', timeout={self.timeout})"
 
     @property
-    def dict(self):
+    def dict(self) -> dict[str, Any]:
         return vars(self)
 
-    def add_notification_channel(self, channel: Channel):
+    def add_notification_channel(self, channel: Channel) -> None:
         self.notification_channels.append(channel)
         self.notifier.subscribe(channel)
 
-    def save_as_json(self, path: str):
+    def save_as_json(self, path: str) -> None:
         fs.json_dump(self.dict, path, indent=4)
 
-    def save_as_yaml(self, path: str):
+    def save_as_yaml(self, path: str) -> None:
         fs.yaml_dump(self.dict, path)
 
     @classmethod
@@ -66,7 +66,7 @@ class Task:
         return cls.from_json(path)
 
     @property
-    def _start_notification_data(self):
+    def _start_notification_data(self) -> dict[str, Any]:
         data: dict[str, Any] = {"device": get_device_info()}
         if self.timeout is not None:
             data["timeout"] = self.timeout
